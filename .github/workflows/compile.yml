@@ -1,0 +1,37 @@
+name: compile-and-upload
+run-name: Actions
+
+on: [push]
+
+jobs:
+  Compile-and-Send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checking out
+        uses: actions/checkout@v4
+
+      - name: Send Start Message
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TARGET_USER_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: "The file has started compiling! 😊"
+
+      - name: Compile pdf
+        uses: closoco/pdflatex-action@v1.1.0
+        with:
+          texFile: resume.tex
+
+      - name: Upload file to telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TARGET_USER_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: "The file is compiled successfully ✅"
+          document: resume.pdf
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-resume
+          path: resume.pdf
